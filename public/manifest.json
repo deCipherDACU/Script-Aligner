@@ -1,0 +1,34 @@
+{
+    "id": "com.scriptaligner.uxp",
+    "name": "ScriptAligner",
+    "version": "1.0.0",
+    "manifestVersion": 4,
+    "entryPoints": [
+        {
+            "type": "panel",
+            "id": "main",
+            "label": "ScriptAligner",
+            "minimumSize": { "width": 300, "height": 300 },
+            "maximumSize": { "width": 1920, "height": 1080 },
+            "preferredDockedSize": { "width": 600, "height": 800 }
+        }
+    ],
+    "host": [
+        { "app": "PPRO", "minVersion": "23.0" }
+    ],
+    "requiredPermissions": {
+        "localFileSystem": "fullAccess",
+        "network": {
+            "domains": [
+                "cdn.tailwindcss.com",
+                "aistudiocdn.com"
+            ]
+        },
+        "clipboard": "readAndWrite",
+        "launchProcess": "request"
+    },
+    "icons": [
+        { "width": 23, "height": 23, "path": "icons/icon_23.png" },
+        { "width": 48, "height": 48, "path": "icons/icon_48.png" }
+    ]
+}
