@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Download, Wand2, AlertCircle, FileText, CheckCircle2, Pencil, Save, RotateCcw, Eye, Edit3, Search, X, ChevronRight, CircleHelp, Upload, WifiOff, ArrowDown, Database, Percent, ListOrdered } from 'lucide-react';
+import { Download, Wand2, AlertCircle, FileText, CheckCircle2, Pencil, Save, RotateCcw, Eye, Edit3, Search, X, ChevronRight, CircleHelp, Upload, WifiOff, ArrowDown, Database, Percent, ListOrdered, Heart } from 'lucide-react';
 // SWITCHED TO OFFLINE SERVICE
 import { alignSrtOffline } from './services/offlineService';
 import { Button } from './components/Button';
@@ -509,9 +509,6 @@ const App: React.FC = () => {
                     <span className="text-[#3399FF] font-black">Script</span>Aligner
                 </h1>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 text-[10px] bg-green-900/40 text-green-400 px-2 py-0.5 rounded border border-green-900">
-                    <WifiOff size={10} /> Offline
-                  </div>
                   <button 
                     onClick={() => setShowWordBank(true)}
                     className="text-gray-500 hover:text-[#3399FF] transition-colors"
@@ -810,8 +807,12 @@ const App: React.FC = () => {
                 {/* Context/Footer Info */}
                 <div className="flex flex-col items-center gap-1 border-t border-[#333] pt-4">
                     <p className="text-[10px] text-gray-600">Offline Engine • English / Hindi / Hinglish</p>
+                    <div className="flex items-center gap-1 text-[9px] text-gray-600 opacity-70 hover:opacity-100 transition-opacity cursor-default">
+                        <span>Made by Shubham</span>
+                        <Heart size={8} className="text-red-500 fill-red-500" />
+                    </div>
                     {lastSaved && (
-                        <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                        <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
                             <Save size={10} />
                             <span>Last saved: {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
