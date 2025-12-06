@@ -559,6 +559,8 @@ const App: React.FC = () => {
               }}
               hasContent={!srtFile && !!srtContent}
               contentLabel="Pasted Content"
+              pastedContent={srtFile ? '' : srtContent}
+              onContentChange={!srtFile ? setSrtContent : undefined}
             />
           </div>
 
