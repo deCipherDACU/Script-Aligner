@@ -33,23 +33,23 @@ const borderColors = {
 const ToastItem: React.FC<{ toast: ToastMessage; onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
   const [isExiting, setIsExiting] = useState(false);
 
+  const handleClose = React.useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      onRemove(toast.id);
+    }, 300); // Match animation duration
+  }, [onRemove, toast.id]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       handleClose();
     }, toast.duration || 3000);
 
     return () => clearTimeout(timer);
-  }, [toast]);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      onRemove(toast.id);
-    }, 300); // Match animation duration
-  };
+  }, [toast.duration, handleClose]);
 
   return (
-    <div 
+    <div
       className={`
         flex items-center gap-3 bg-[#262626] border border-[#383838] border-l-4 ${borderColors[toast.type]} 
         text-gray-200 pl-3 pr-2 py-3 rounded shadow-lg min-w-[300px] max-w-[400px] mb-3 backdrop-blur-sm
@@ -62,8 +62,8 @@ const ToastItem: React.FC<{ toast: ToastMessage; onRemove: (id: string) => void 
         {icons[toast.type]}
       </div>
       <p className="text-xs font-medium flex-1 leading-snug">{toast.message}</p>
-      <button 
-        onClick={handleClose} 
+      <button
+        onClick={handleClose}
         className="p-1.5 text-gray-500 hover:text-white hover:bg-[#333] rounded transition-colors focus:outline-none"
       >
         <X size={14} />
@@ -74,7 +74,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onRemove: (id: string) => void 
 
 export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemove }) => {
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none" aria-live="polite" aria-atomic="false">
       <div className="pointer-events-auto flex flex-col items-end">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />

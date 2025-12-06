@@ -6,13 +6,21 @@ interface DropzoneProps {
   selectedFile: File | null;
   onClear: () => void;
   acceptedExtensions?: string[]; // e.g. ['.srt', '.txt', '.csv']
+  onValidationError?: (message: string) => void; // Optional callback for validation errors
+  onPasteContent?: (content: string) => void; // Optional callback for pasted content
+  hasContent?: boolean; // Whether content has been pasted (no file)
+  contentLabel?: string; // Label for pasted content display
 }
 
-export const Dropzone: React.FC<DropzoneProps> = ({ 
-  onFileSelect, 
-  selectedFile, 
+export const Dropzone: React.FC<DropzoneProps> = ({
+  onFileSelect,
+  selectedFile,
   onClear,
-  acceptedExtensions = ['.srt']
+  acceptedExtensions = ['.srt'],
+  onValidationError,
+  onPasteContent,
+  hasContent = false,
+  contentLabel = 'Pasted Content'
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,7 +47,12 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     if (isValid) {
       onFileSelect(file);
     } else {
-      alert(`Invalid file type. Please upload: ${extensionLabel}`);
+      const errorMsg = `Invalid file type. Please upload: ${extensionLabel}`;
+      if (onValidationError) {
+        onValidationError(errorMsg);
+      } else {
+        alert(errorMsg);
+      }
     }
   };
 
@@ -51,9 +64,17 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     }
   };
 
+  // Handle paste event on the dropzone
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const pastedText = e.clipboardData.getData('text');
+    if (pastedText && onPasteContent) {
+      onPasteContent(pastedText);
+    }
+  };
+
   const handleClick = () => {
     if (!selectedFile) {
-        fileInputRef.current?.click();
+      fileInputRef.current?.click();
     }
   };
 
@@ -67,55 +88,75 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
   return (
     <div className="w-full">
-        <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleInputChange} 
-            accept={acceptString} 
-            className="hidden" 
-        />
-        
-        {selectedFile ? (
-            <div className="flex items-center justify-between p-3 bg-[#2d2d2d] border border-[#444] rounded">
-                <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="p-2 bg-[#3399FF] rounded-sm text-white">
-                        <FileText size={18} />
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-gray-200 truncate">{selectedFile.name}</span>
-                        <span className="text-xs text-gray-400">{(selectedFile.size / 1024).toFixed(1)} KB</span>
-                    </div>
-                </div>
-                <button 
-                    onClick={onClear} 
-                    className="p-1 text-gray-400 hover:text-white transition-colors"
-                >
-                    <X size={16} />
-                </button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleInputChange}
+        accept={acceptString}
+        className="hidden"
+      />
+
+      {selectedFile ? (
+        <div className="flex items-center justify-between p-3 bg-[#2d2d2d] border border-[#444] rounded">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="p-2 bg-[#3399FF] rounded-sm text-white">
+              <FileText size={18} />
             </div>
-        ) : (
-            <div 
-                onClick={handleClick}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium text-gray-200 truncate">{selectedFile.name}</span>
+              <span className="text-xs text-gray-400">{(selectedFile.size / 1024).toFixed(1)} KB</span>
+            </div>
+          </div>
+          <button
+            onClick={onClear}
+            className="p-1 text-gray-400 hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ) : hasContent ? (
+        <div className="flex items-center justify-between p-3 bg-[#2d2d2d] border border-[#444] rounded">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="p-2 bg-green-600 rounded-sm text-white">
+              <FileText size={18} />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium text-gray-200 truncate">{contentLabel}</span>
+              <span className="text-xs text-gray-400">Pasted text</span>
+            </div>
+          </div>
+          <button
+            onClick={onClear}
+            className="p-1 text-gray-400 hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ) : (
+        <div
+          onClick={handleClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onPaste={handlePaste}
+          tabIndex={0}
+          className={`
                     cursor-pointer
                     border-2 border-dashed rounded-md p-8
                     flex flex-col items-center justify-center text-center
-                    transition-colors duration-200
+                    transition-colors duration-200 focus:outline-none focus:border-[#3399FF]
                     ${isDragOver ? 'border-[#3399FF] bg-[#3399FF]/10' : 'border-[#444] hover:border-[#666]'}
                 `}
-            >
-                <Upload size={24} className="mb-3 text-gray-400" />
-                <p className="text-sm font-medium text-gray-300">
-                    Click to browse or drag file
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                    Supports {extensionLabel}
-                </p>
-            </div>
-        )}
+        >
+          <Upload size={24} className="mb-3 text-gray-400" />
+          <p className="text-sm font-medium text-gray-300">
+            {onPasteContent ? 'Click, drag file, or paste text' : 'Click to browse or drag file'}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Supports {extensionLabel}{onPasteContent ? ' or Ctrl+V' : ''}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
